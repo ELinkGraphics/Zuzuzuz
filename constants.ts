@@ -29,6 +29,7 @@ export const CHARACTERS: Character[] = [
     roleAm: 'ትናንሽ ነብሮች',
     gradient: 'from-[#ff4b5c] to-[#e63946]',
     image: 'https://littletigersbooks.com/img/zuzu.png',
+    video: 'https://littletigersbooks.com/img/zuzudance.mp4',
     stats: { power: 65, agility: 90, intelligence: 80 },
     bio: 'Zuzu is a brave and curious character from the Little Tigers series. With a heart of gold and a spirit of adventure, Zuzu is always ready to explore new worlds and help friends along the way.',
     bioAm: 'ዙዙ ከትናንሽ ነብሮች ተከታታይ ደፋር እና የማወቅ ጉጉት ያለው ገጸ-ባህሪ ነው። በወርቅ ልብ እና በጀብደኝነት መንፈስ፣ ዙዙ ሁል ጊዜ አዳዲስ ዓለሞችን ለማሰስ እና ጓደኞችን ለመርዳት ዝግጁ ነው።',

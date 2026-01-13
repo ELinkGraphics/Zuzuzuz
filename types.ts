@@ -7,6 +7,7 @@ export interface Character {
   roleAm: string;
   gradient: string;
   image: string;
+  video?: string; // Optional video for detail view
   stats: {
     power: number;
     agility: number;
