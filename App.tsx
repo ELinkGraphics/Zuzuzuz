@@ -282,7 +282,9 @@ const App: React.FC = () => {
             style={{ backgroundImage: 'url("https://littletigersbooks.com/img/charactor.jpg")' }}
           ></div>
 
-          <Header language={language} />
+          <div className="relative">
+            <Header language={language} />
+          </div>
           
           <button 
             onClick={() => setCurrentSection(0)}

@@ -25,7 +25,11 @@ export const UI_TRANSLATIONS = {
     next: "Next",
     source: "SOURCE",
     store: "Store",
-    characterLabel: "Character"
+    characterLabel: "Character",
+    studio: "Magic Studio",
+    create: "Create Magic",
+    promptPlaceholder: "Describe your tiger...",
+    download: "Download Creation"
   },
   am: {
     welcome: "እንኳን ወደ ጫካው በሰላም መጡ",
@@ -52,6 +56,10 @@ export const UI_TRANSLATIONS = {
     next: "የሚቀጥለው",
     source: "ምንጭ",
     store: "መደብር",
-    characterLabel: "ገጸ-ባህሪ"
+    characterLabel: "ገጸ-ባህሪ",
+    studio: "የጥበብ ስቱዲዮ",
+    create: "ጥበብ ፍጠር",
+    promptPlaceholder: "ነብርህን ግለጽ...",
+    download: "አውርድ"
   }
 };
