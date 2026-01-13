@@ -31,8 +31,20 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ character, isActive, onCl
           {/* Subtle dark gradient for better contrast */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30 pointer-events-none"></div>
 
-          {/* Button Container: Top-aligned */}
-          <div className="p-6 pb-0 flex justify-center z-20">
+          {/* Spacer for top balance */}
+          <div className="h-10 pointer-events-none"></div>
+
+          {/* Image Container: Prominent in the middle */}
+          <div className="flex-1 w-full px-4 md:px-6 flex items-center justify-center z-10 relative">
+            <img 
+              src={character.image} 
+              alt="Family Photo"
+              className="w-full h-full object-contain scale-[1.25] drop-shadow-[0_25px_60px_rgba(0,0,0,0.6)] transition-all duration-1000 float-animation"
+            />
+          </div>
+          
+          {/* Button Container: Moved to bottom (footer position) and brought to front */}
+          <div className="p-6 pt-0 flex justify-center relative z-50">
              <button 
                 onClick={(e) => {
                   e.stopPropagation();
@@ -43,18 +55,6 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ character, isActive, onCl
                 Buy the Book
               </button>
           </div>
-
-          {/* Image Container: Expanded height and scaled up to reach the user's line */}
-          <div className="flex-1 w-full px-4 md:px-6 flex items-center justify-center z-10 relative -mt-6">
-            <img 
-              src={character.image} 
-              alt="Family Photo"
-              className="w-full h-full object-contain scale-[1.15] drop-shadow-[0_25px_60px_rgba(0,0,0,0.6)] transition-all duration-1000 float-animation"
-            />
-          </div>
-          
-          {/* Minimal spacer at bottom */}
-          <div className="h-10 pointer-events-none"></div>
         </div>
       </div>
     );
