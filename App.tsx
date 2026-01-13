@@ -1,11 +1,11 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { GoogleGenAI, Modality } from "@google/genai";
-import { Character } from './types';
-import { CHARACTERS } from './constants';
-import Header from './components/Header';
-import CharacterCard from './components/CharacterCard';
-import CharacterDetail from './components/CharacterDetail';
+import { Character } from './types.ts';
+import { CHARACTERS } from './constants.ts';
+import Header from './components/Header.tsx';
+import CharacterCard from './components/CharacterCard.tsx';
+import CharacterDetail from './components/CharacterDetail.tsx';
 
 const App: React.FC = () => {
   const [currentSection, setCurrentSection] = useState(0); // 0: Hero, 1: Gallery
