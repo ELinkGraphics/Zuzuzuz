@@ -1,18 +1,23 @@
 
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 import { GoogleGenAI, Modality } from "@google/genai";
-import { Character } from './types.ts';
+import { Character, Language } from './types.ts';
 import { CHARACTERS } from './constants.ts';
+import { UI_TRANSLATIONS } from './translations.ts';
 import Header from './components/Header.tsx';
 import CharacterCard from './components/CharacterCard.tsx';
 import CharacterDetail from './components/CharacterDetail.tsx';
 
 const App: React.FC = () => {
+  const [language, setLanguage] = useState<Language>('en');
   const [currentSection, setCurrentSection] = useState(0); // 0: Hero, 1: Gallery
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
   
+  // Translation short-hand
+  const t = UI_TRANSLATIONS[language];
+
   // Carousel Drag State
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
@@ -38,32 +43,27 @@ const App: React.FC = () => {
     const handleResize = () => setWindowWidth(window.innerWidth);
     window.addEventListener('resize', handleResize);
     
-    // Handle vertical scroll to horizontal transition and internal gallery scrolling
     const handleWheel = (e: WheelEvent) => {
       if (selectedCharacter) return;
       
       const now = Date.now();
-      const cooldown = 400; // ms between scrolls to feel premium
+      const cooldown = 400; 
       if (now - lastWheelTimeRef.current < cooldown) return;
 
       const sensitivity = 40;
 
-      // If we are on hero and scroll down
       if (currentSection === 0 && e.deltaY > sensitivity) {
         setCurrentSection(1);
         lastWheelTimeRef.current = now;
       }
       
-      // If we are on gallery
       if (currentSection === 1) {
         if (e.deltaY > sensitivity) {
-          // Scroll Down -> Next Character
           if (activeIndex < CHARACTERS.length - 1) {
             nextCharacter();
             lastWheelTimeRef.current = now;
           }
         } else if (e.deltaY < -sensitivity) {
-          // Scroll Up -> Prev Character or Back to Hero
           if (activeIndex > 0) {
             prevCharacter();
             lastWheelTimeRef.current = now;
@@ -198,6 +198,23 @@ const App: React.FC = () => {
     sessionRef.current = await sessionPromise;
   };
 
+  const LanguageSwitcher = () => (
+    <div className="flex items-center gap-2 p-1 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full">
+      <button 
+        onClick={() => setLanguage('en')}
+        className={`px-4 py-1.5 rounded-full text-xs font-black transition-all ${language === 'en' ? 'bg-white text-black shadow-lg scale-105' : 'text-white/60 hover:text-white'}`}
+      >
+        EN
+      </button>
+      <button 
+        onClick={() => setLanguage('am')}
+        className={`px-4 py-1.5 rounded-full text-xs font-black transition-all ${language === 'am' ? 'bg-white text-black shadow-lg scale-105' : 'text-white/60 hover:text-white'}`}
+      >
+        አማ
+      </button>
+    </div>
+  );
+
   return (
     <div 
       className="w-full h-screen bg-white overflow-hidden relative"
@@ -207,7 +224,6 @@ const App: React.FC = () => {
       onTouchMove={onDragMove}
       onTouchEnd={onDragEnd}
     >
-      {/* Camera Preview Overlay */}
       {!selectedCharacter && isCameraActive && (
         <div className="fixed top-4 right-4 z-[200] w-24 md:w-32 aspect-video rounded-xl overflow-hidden border-2 border-rose-500 bg-black shadow-xl">
           <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover grayscale opacity-50" />
@@ -218,59 +234,56 @@ const App: React.FC = () => {
         </div>
       )}
 
-      {/* Main Horizontal Scroller */}
       <div 
         className="flex w-[200vw] h-full will-change-transform transition-transform duration-[1200ms] ease-[cubic-bezier(0.23,1,0.32,1)]"
         style={{ transform: `translateX(-${currentSection * 100}vw)` }}
       >
-        {/* PAGE 1: HERO */}
         <section className={`relative w-screen h-full overflow-hidden flex flex-col items-center justify-center text-white transition-all duration-[1200ms] ${currentSection === 1 ? 'scale-95 opacity-0 blur-md' : 'scale-100 opacity-100 blur-0'}`}>
-          <video 
-            autoPlay 
-            loop 
-            muted 
-            playsInline 
-            className="absolute inset-0 w-full h-full object-cover z-0"
-          >
+          <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover z-0">
             <source src="https://littletigersbooks.com/img/home.mp4" type="video/mp4" />
           </video>
           <div className="absolute inset-0 bg-black/30 z-10"></div>
           
+          <div className="absolute top-10 right-10 z-[100]">
+            <LanguageSwitcher />
+          </div>
+
           <div className="relative z-20 flex flex-col items-center gap-4 md:gap-6 text-center px-4 max-w-5xl">
             <img 
               src="https://littletigersbooks.com/img/logo%20(1).png" 
               alt="Logo" 
               className="h-40 md:h-[300px] lg:h-[400px] w-auto object-contain drop-shadow-2xl transition-all duration-700 hover:scale-105"
             />
-            <div>
-              <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase drop-shadow-lg mb-2 text-white">Welcome to the Jungle</h1>
-              <p className="text-lg md:text-xl font-light tracking-widest opacity-80 uppercase text-white">World of Little Tigers</p>
+            <div className="transition-all duration-700">
+              <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase drop-shadow-lg mb-2 text-white">
+                {t.welcome}
+              </h1>
+              <p className="text-lg md:text-xl font-light tracking-widest opacity-80 uppercase text-white">
+                {t.subtitle}
+              </p>
             </div>
             <button 
               onClick={() => setCurrentSection(1)}
               className="mt-6 px-12 py-5 bg-white text-black font-black uppercase tracking-[0.2em] rounded-full hover:scale-110 active:scale-95 transition-all shadow-2xl"
             >
-              Explore Characters
+              {t.explore}
             </button>
           </div>
 
           <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 opacity-60 animate-bounce">
             <div className="w-[1px] h-12 bg-gradient-to-b from-transparent via-white to-transparent"></div>
-            <span className="text-[10px] font-bold tracking-[0.3em] uppercase">Scroll</span>
+            <span className="text-[10px] font-bold tracking-[0.3em] uppercase">{t.scroll}</span>
           </div>
         </section>
 
-        {/* PAGE 2: GALLERY */}
         <section className={`relative w-screen h-full flex flex-col bg-white transition-all duration-[1200ms] delay-100 ${currentSection === 0 ? 'translate-x-32 opacity-0' : 'translate-x-0 opacity-100'}`}>
-          {/* Faded Background Image */}
           <div 
             className="absolute inset-0 z-0 opacity-10 pointer-events-none bg-cover bg-center bg-no-repeat"
             style={{ backgroundImage: 'url("https://littletigersbooks.com/img/charactor.jpg")' }}
           ></div>
 
-          <Header />
+          <Header language={language} />
           
-          {/* Back to Hero Button (Top Left) */}
           <button 
             onClick={() => setCurrentSection(0)}
             className="absolute top-8 left-8 z-50 p-2 hover:bg-gray-100 rounded-full transition-all group"
@@ -305,6 +318,7 @@ const App: React.FC = () => {
                       <CharacterCard 
                         character={char} 
                         isActive={activeIndex === index}
+                        language={language}
                         onClick={(c) => handleCardClick(c, index)}
                       />
                     </div>
@@ -313,7 +327,6 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            {/* Gallery Controls */}
             <div className="px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-6 mt-4">
               <div className="flex gap-8 items-center text-gray-400">
                 <button onClick={toggleCameraGestures} className={`w-10 h-10 rounded-full flex items-center justify-center transition-all border ${isCameraActive ? 'bg-rose-500 text-white border-rose-600' : 'bg-white text-gray-600 border-gray-100 shadow-sm'}`}>
@@ -333,7 +346,7 @@ const App: React.FC = () => {
                   <div className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center group-hover:bg-gray-50 transition-colors">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" /></svg>
                   </div>
-                  Prev
+                  {t.prev}
                 </button>
                 <div className="h-1 w-12 bg-gray-100 rounded-full overflow-hidden">
                     <div 
@@ -345,7 +358,7 @@ const App: React.FC = () => {
                   onClick={nextCharacter}
                   className="group flex items-center gap-3 hover:text-black transition-all font-black uppercase text-[12px] tracking-widest text-gray-900"
                 >
-                  Next
+                  {t.next}
                   <div className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center group-hover:bg-gray-50 transition-colors">
                     <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" /></svg>
                   </div>
@@ -359,6 +372,7 @@ const App: React.FC = () => {
       {selectedCharacter && (
         <CharacterDetail 
           character={selectedCharacter} 
+          language={language}
           onBack={() => setSelectedCharacter(null)} 
         />
       )}

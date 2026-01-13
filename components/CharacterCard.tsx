@@ -1,14 +1,20 @@
 
 import React from 'react';
-import { Character } from '../types';
+import { Character, Language } from '../types';
+import { UI_TRANSLATIONS } from '../translations';
 
 interface CharacterCardProps {
   character: Character;
   isActive: boolean;
+  language: Language;
   onClick: (character: Character) => void;
 }
 
-const CharacterCard: React.FC<CharacterCardProps> = ({ character, isActive, onClick }) => {
+const CharacterCard: React.FC<CharacterCardProps> = ({ character, isActive, language, onClick }) => {
+  const t = UI_TRANSLATIONS[language];
+  const charName = language === 'am' ? character.nameAm : character.name;
+  const charRole = language === 'am' ? character.roleAm : character.role;
+
   if (character.isFamilyCard) {
     return (
       <div 
@@ -28,13 +34,9 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ character, isActive, onCl
             backgroundPosition: 'center'
           }}
         >
-          {/* Subtle dark gradient for better contrast */}
           <div className="absolute inset-0 bg-gradient-to-b from-black/20 via-transparent to-black/30 pointer-events-none"></div>
-
-          {/* Spacer for top balance */}
           <div className="h-10 pointer-events-none"></div>
 
-          {/* Image Container: Prominent in the middle */}
           <div className="flex-1 w-full px-4 md:px-6 flex items-center justify-center z-10 relative">
             <img 
               src={character.image} 
@@ -43,7 +45,6 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ character, isActive, onCl
             />
           </div>
           
-          {/* Button Container: Moved to bottom (footer position) and brought to front */}
           <div className="p-6 pt-0 flex justify-center relative z-50">
              <button 
                 onClick={(e) => {
@@ -52,7 +53,7 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ character, isActive, onCl
                 }}
                 className="w-full py-4 bg-[#3a86ff] text-white font-black uppercase tracking-widest rounded-full hover:scale-105 active:scale-95 transition-all shadow-xl border-2 border-white/40"
               >
-                Buy the Book
+                {t.buyBook}
               </button>
           </div>
         </div>
@@ -70,11 +71,10 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ character, isActive, onCl
         width: '100%'
       }}
     >
-      {/* Character Image */}
       <div className={`absolute top-0 left-0 w-full h-full flex justify-center pointer-events-none z-20 transition-transform duration-700 ${isActive ? 'translate-x-[15%]' : 'translate-x-0'}`}>
         <img 
           src={character.image} 
-          alt={character.name}
+          alt={charName}
           className={`h-[115%] w-auto object-contain transition-all duration-1000 will-change-transform float-animation
             ${isActive 
               ? 'translate-y-[-28%] drop-shadow-[0_45px_45px_rgba(0,0,0,0.35)]' 
@@ -82,7 +82,6 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ character, isActive, onCl
         />
       </div>
 
-      {/* Card Background */}
       <div className={`absolute bottom-0 left-0 w-full rounded-[50px] bg-gradient-to-b ${character.gradient} shadow-2xl overflow-hidden transition-all duration-700
         ${isActive ? 'h-[80%]' : 'h-[70%]'}`}
       >
@@ -90,15 +89,14 @@ const CharacterCard: React.FC<CharacterCardProps> = ({ character, isActive, onCl
         <div className="absolute top-0 left-0 w-24 h-24 bg-black/10 -translate-x-12 -translate-y-12 rounded-full"></div>
         <div className="absolute top-0 right-0 w-24 h-24 bg-black/10 translate-x-12 -translate-y-12 rounded-full"></div>
 
-        {/* Content */}
         <div className="absolute bottom-0 left-0 w-full p-10 text-white select-none z-30">
           <h2 className={`font-black tracking-tighter mb-2 transition-all duration-500 leading-[0.9] ${isActive ? 'text-6xl md:text-7xl' : 'text-3xl'}`}>
-            {character.name}
+            {charName}
           </h2>
           <div className="flex items-center gap-2 text-[10px] md:text-xs font-black tracking-widest uppercase opacity-80">
-            <span>SOURCE</span>
+            <span>{t.source}</span>
             <span className="w-1.5 h-1.5 rounded-full bg-white opacity-40"></span>
-            <span>{character.role.toUpperCase()}</span>
+            <span>{charRole.toUpperCase()}</span>
           </div>
         </div>
       </div>
