@@ -18,37 +18,13 @@ const App: React.FC = () => {
   const [startX, setStartX] = useState(0);
   const [dragOffset, setDragOffset] = useState(0);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const lastWheelTimeRef = useRef(0);
 
   // Camera Gesture State
   const [isCameraActive, setIsCameraActive] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const sessionRef = useRef<any>(null);
-
-  useEffect(() => {
-    const handleResize = () => setWindowWidth(window.innerWidth);
-    window.addEventListener('resize', handleResize);
-    
-    // Handle vertical scroll to horizontal transition
-    const handleWheel = (e: WheelEvent) => {
-      if (selectedCharacter) return;
-      
-      // If we are on hero and scroll down
-      if (currentSection === 0 && e.deltaY > 30) {
-        setCurrentSection(1);
-      }
-      // If we are on gallery and scroll up (and at the start of carousel)
-      if (currentSection === 1 && e.deltaY < -30 && activeIndex === 0 && !isDragging) {
-        setCurrentSection(0);
-      }
-    };
-
-    window.addEventListener('wheel', handleWheel, { passive: true });
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      window.removeEventListener('wheel', handleWheel);
-    };
-  }, [currentSection, selectedCharacter, activeIndex, isDragging]);
 
   const nextCharacter = useCallback(() => {
     setActiveIndex(prev => (prev + 1) % CHARACTERS.length);
@@ -57,6 +33,54 @@ const App: React.FC = () => {
   const prevCharacter = useCallback(() => {
     setActiveIndex(prev => (prev - 1 + CHARACTERS.length) % CHARACTERS.length);
   }, []);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener('resize', handleResize);
+    
+    // Handle vertical scroll to horizontal transition and internal gallery scrolling
+    const handleWheel = (e: WheelEvent) => {
+      if (selectedCharacter) return;
+      
+      const now = Date.now();
+      const cooldown = 400; // ms between scrolls to feel premium
+      if (now - lastWheelTimeRef.current < cooldown) return;
+
+      const sensitivity = 40;
+
+      // If we are on hero and scroll down
+      if (currentSection === 0 && e.deltaY > sensitivity) {
+        setCurrentSection(1);
+        lastWheelTimeRef.current = now;
+      }
+      
+      // If we are on gallery
+      if (currentSection === 1) {
+        if (e.deltaY > sensitivity) {
+          // Scroll Down -> Next Character
+          if (activeIndex < CHARACTERS.length - 1) {
+            nextCharacter();
+            lastWheelTimeRef.current = now;
+          }
+        } else if (e.deltaY < -sensitivity) {
+          // Scroll Up -> Prev Character or Back to Hero
+          if (activeIndex > 0) {
+            prevCharacter();
+            lastWheelTimeRef.current = now;
+          } else if (!isDragging) {
+            setCurrentSection(0);
+            lastWheelTimeRef.current = now;
+          }
+        }
+      }
+    };
+
+    window.addEventListener('wheel', handleWheel, { passive: true });
+    return () => {
+      window.removeEventListener('resize', handleResize);
+      window.removeEventListener('wheel', handleWheel);
+    };
+  }, [currentSection, selectedCharacter, activeIndex, isDragging, nextCharacter, prevCharacter]);
 
   const handleCardClick = (character: Character, index: number) => {
     if (Math.abs(dragOffset) < 10) {
@@ -238,7 +262,7 @@ const App: React.FC = () => {
 
         {/* PAGE 2: GALLERY */}
         <section className={`relative w-screen h-full flex flex-col bg-white transition-all duration-[1200ms] delay-100 ${currentSection === 0 ? 'translate-x-32 opacity-0' : 'translate-x-0 opacity-100'}`}>
-          {/* Faded Background Image - ONLY this element has opacity reduction */}
+          {/* Faded Background Image */}
           <div 
             className="absolute inset-0 z-0 opacity-10 pointer-events-none bg-cover bg-center bg-no-repeat"
             style={{ backgroundImage: 'url("https://littletigersbooks.com/img/charactor.jpg")' }}

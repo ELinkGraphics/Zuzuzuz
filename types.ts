@@ -12,6 +12,12 @@ export interface Character {
   };
   bio: string;
   voiceActor: string;
+  isFamilyCard?: boolean;
+  // Book specific fields
+  price?: string;
+  pages?: number;
+  ageRange?: string;
+  publisher?: string;
 }
 
 export interface EditHistory {

@@ -3,6 +3,21 @@ import { Character } from './types';
 
 export const CHARACTERS: Character[] = [
   {
+    id: 'family-photo',
+    name: 'Little Tigers: The Adventure Begins',
+    role: 'Special Edition Book',
+    gradient: 'from-[#22c55e] to-[#15803d]',
+    image: 'https://littletigersbooks.com/img/family.png',
+    stats: { power: 0, agility: 0, intelligence: 0 },
+    bio: 'Join Zuzu and the rest of the Little Tigers in their first grand adventure! This beautifully illustrated hardcover book takes you deep into the heart of the jungle, teaching lessons of courage, family, and friendship.',
+    voiceActor: 'Hardcover Edition',
+    isFamilyCard: true,
+    price: '$24.99',
+    pages: 48,
+    ageRange: '3-8 Years',
+    publisher: 'Little Tigers Publishing'
+  },
+  {
     id: '1',
     name: 'Zuzu',
     role: 'Little Tigers',
