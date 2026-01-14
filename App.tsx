@@ -7,6 +7,8 @@ import { UI_TRANSLATIONS } from './translations.ts';
 import Header from './components/Header.tsx';
 import CharacterCard from './components/CharacterCard.tsx';
 import CharacterDetail from './components/CharacterDetail.tsx';
+import SocialOverlay from './components/SocialOverlay.tsx';
+import AboutOverlay from './components/AboutOverlay.tsx';
 
 const App: React.FC = () => {
   const [language, setLanguage] = useState<Language>('en');
@@ -14,6 +16,10 @@ const App: React.FC = () => {
   const [selectedCharacter, setSelectedCharacter] = useState<Character | null>(null);
   const [activeIndex, setActiveIndex] = useState(0);
   const [windowWidth, setWindowWidth] = useState(typeof window !== 'undefined' ? window.innerWidth : 1200);
+  
+  // Overlay states
+  const [showSocial, setShowSocial] = useState(false);
+  const [showAbout, setShowAbout] = useState(false);
   
   // Translation short-hand
   const t = UI_TRANSLATIONS[language];
@@ -44,7 +50,7 @@ const App: React.FC = () => {
     window.addEventListener('resize', handleResize);
     
     const handleWheel = (e: WheelEvent) => {
-      if (selectedCharacter) return;
+      if (selectedCharacter || showSocial || showAbout) return;
       
       const now = Date.now();
       const cooldown = 400; 
@@ -80,7 +86,7 @@ const App: React.FC = () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('wheel', handleWheel);
     };
-  }, [currentSection, selectedCharacter, activeIndex, isDragging, nextCharacter, prevCharacter]);
+  }, [currentSection, selectedCharacter, activeIndex, isDragging, nextCharacter, prevCharacter, showSocial, showAbout]);
 
   const handleCardClick = (character: Character, index: number) => {
     if (Math.abs(dragOffset) < 10) {
@@ -93,7 +99,7 @@ const App: React.FC = () => {
   };
 
   const onDragStart = (e: React.MouseEvent | React.TouchEvent) => {
-    if (selectedCharacter || currentSection === 0) return;
+    if (selectedCharacter || currentSection === 0 || showSocial || showAbout) return;
     setIsDragging(true);
     const clientX = 'touches' in e ? (e as React.TouchEvent).touches[0].clientX : (e as React.MouseEvent).clientX;
     setStartX(clientX);
@@ -335,8 +341,8 @@ const App: React.FC = () => {
                   <span className="text-xl">{isCameraActive ? '✨' : '👋'}</span>
                 </button>
                 <div className="flex gap-6 text-[10px] font-black uppercase tracking-[0.2em]">
-                  <a href="#" className="hover:text-black">Social</a>
-                  <a href="#" className="hover:text-black">About</a>
+                  <button onClick={() => setShowSocial(true)} className="hover:text-black">Social</button>
+                  <button onClick={() => setShowAbout(true)} className="hover:text-black">About</button>
                 </div>
               </div>
 
@@ -377,6 +383,14 @@ const App: React.FC = () => {
           language={language}
           onBack={() => setSelectedCharacter(null)} 
         />
+      )}
+
+      {showSocial && (
+        <SocialOverlay language={language} onClose={() => setShowSocial(false)} />
+      )}
+
+      {showAbout && (
+        <AboutOverlay language={language} onClose={() => setShowAbout(false)} />
       )}
     </div>
   );
