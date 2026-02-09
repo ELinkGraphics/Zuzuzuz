@@ -9,6 +9,7 @@ import CharacterCard from './components/CharacterCard.tsx';
 import CharacterDetail from './components/CharacterDetail.tsx';
 import SocialOverlay from './components/SocialOverlay.tsx';
 import AboutOverlay from './components/AboutOverlay.tsx';
+import MagicStudio from './components/MagicStudio.tsx';
 
 const App: React.FC = () => {
   const [language, setLanguage] = useState<Language>('en');
@@ -20,8 +21,8 @@ const App: React.FC = () => {
   // Overlay states
   const [showSocial, setShowSocial] = useState(false);
   const [showAbout, setShowAbout] = useState(false);
+  const [showMagic, setShowMagic] = useState(false);
   
-  // Translation short-hand
   const t = UI_TRANSLATIONS[language];
 
   // Carousel Drag State
@@ -50,7 +51,7 @@ const App: React.FC = () => {
     window.addEventListener('resize', handleResize);
     
     const handleWheel = (e: WheelEvent) => {
-      if (selectedCharacter || showSocial || showAbout) return;
+      if (selectedCharacter || showSocial || showAbout || showMagic) return;
       
       const now = Date.now();
       const cooldown = 400; 
@@ -86,7 +87,7 @@ const App: React.FC = () => {
       window.removeEventListener('resize', handleResize);
       window.removeEventListener('wheel', handleWheel);
     };
-  }, [currentSection, selectedCharacter, activeIndex, isDragging, nextCharacter, prevCharacter, showSocial, showAbout]);
+  }, [currentSection, selectedCharacter, activeIndex, isDragging, nextCharacter, prevCharacter, showSocial, showAbout, showMagic]);
 
   const handleCardClick = (character: Character, index: number) => {
     if (Math.abs(dragOffset) < 10) {
@@ -99,7 +100,7 @@ const App: React.FC = () => {
   };
 
   const onDragStart = (e: React.MouseEvent | React.TouchEvent) => {
-    if (selectedCharacter || currentSection === 0 || showSocial || showAbout) return;
+    if (selectedCharacter || currentSection === 0 || showSocial || showAbout || showMagic) return;
     setIsDragging(true);
     const clientX = 'touches' in e ? (e as React.TouchEvent).touches[0].clientX : (e as React.MouseEvent).clientX;
     setStartX(clientX);
@@ -122,8 +123,9 @@ const App: React.FC = () => {
     setDragOffset(0);
   };
 
-  const cardWidth = windowWidth < 768 ? 280 : 320;
-  const gap = windowWidth < 768 ? 20 : 40;
+  // Improved responsive carousel sizing
+  const cardWidth = windowWidth < 480 ? windowWidth * 0.8 : windowWidth < 768 ? 300 : windowWidth < 1024 ? 320 : 380;
+  const gap = windowWidth < 480 ? 16 : windowWidth < 768 ? 24 : 40;
   const stepWidth = cardWidth + gap;
   const startOffset = (windowWidth / 2) - (cardWidth / 2);
 
@@ -205,16 +207,16 @@ const App: React.FC = () => {
   };
 
   const LanguageSwitcher = () => (
-    <div className="flex items-center gap-2 p-1 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full">
+    <div className="flex items-center gap-1 p-1 bg-white/10 backdrop-blur-xl border border-white/20 rounded-full">
       <button 
         onClick={() => setLanguage('en')}
-        className={`px-4 py-1.5 rounded-full text-xs font-black transition-all ${language === 'en' ? 'bg-white text-black shadow-lg scale-105' : 'text-white/60 hover:text-white'}`}
+        className={`px-3 py-1.5 md:py-1 rounded-full text-[10px] font-black transition-all ${language === 'en' ? 'bg-white text-black shadow-lg scale-105' : 'text-white/60 hover:text-white'}`}
       >
         EN
       </button>
       <button 
         onClick={() => setLanguage('am')}
-        className={`px-4 py-1.5 rounded-full text-xs font-black transition-all ${language === 'am' ? 'bg-white text-black shadow-lg scale-105' : 'text-white/60 hover:text-white'}`}
+        className={`px-3 py-1.5 md:py-1 rounded-full text-[10px] font-black transition-all ${language === 'am' ? 'bg-white text-black shadow-lg scale-105' : 'text-white/60 hover:text-white'}`}
       >
         አማ
       </button>
@@ -223,7 +225,7 @@ const App: React.FC = () => {
 
   return (
     <div 
-      className="w-full h-screen bg-white overflow-hidden relative"
+      className="w-full h-[100dvh] bg-white overflow-hidden relative touch-action-none"
       onMouseMove={onDragMove}
       onMouseUp={onDragEnd}
       onMouseLeave={onDragEnd}
@@ -231,60 +233,60 @@ const App: React.FC = () => {
       onTouchEnd={onDragEnd}
     >
       {!selectedCharacter && isCameraActive && (
-        <div className="fixed top-4 right-4 z-[200] w-24 md:w-32 aspect-video rounded-xl overflow-hidden border-2 border-rose-500 bg-black shadow-xl">
+        <div className="fixed top-4 right-4 z-[200] w-20 md:w-32 aspect-video rounded-xl overflow-hidden border-2 border-rose-500 bg-black shadow-xl">
           <video ref={videoRef} autoPlay playsInline muted className="w-full h-full object-cover grayscale opacity-50" />
           <canvas ref={canvasRef} className="hidden" />
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="w-2 h-2 rounded-full bg-rose-500 animate-pulse"></div>
+            <div className="w-1.5 h-1.5 rounded-full bg-rose-500 animate-pulse"></div>
           </div>
         </div>
       )}
 
       <div 
-        className="flex w-[200vw] h-full will-change-transform transition-transform duration-[1200ms] ease-[cubic-bezier(0.23,1,0.32,1)]"
+        className="flex w-[200vw] h-full will-change-transform transition-transform duration-[1000ms] ease-[cubic-bezier(0.23,1,0.32,1)]"
         style={{ transform: `translateX(-${currentSection * 100}vw)` }}
       >
-        <section className={`relative w-screen h-full overflow-hidden flex flex-col items-center justify-center text-white transition-all duration-[1200ms] ${currentSection === 1 ? 'scale-95 opacity-0 blur-md' : 'scale-100 opacity-100 blur-0'}`}>
+        <section className={`relative w-screen h-full overflow-hidden flex flex-col items-center justify-center text-white transition-all duration-[1000ms] ${currentSection === 1 ? 'scale-95 opacity-0 blur-md' : 'scale-100 opacity-100 blur-0'}`}>
           <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover z-0">
             <source src="https://littletigersbooks.com/img/zuzuplay.mp4" type="video/mp4" />
           </video>
-          <div className="absolute inset-0 bg-black/30 z-10"></div>
+          <div className="absolute inset-0 bg-black/40 z-10"></div>
           
-          <div className="absolute top-10 right-10 z-[100]">
+          <div className="absolute top-4 right-4 md:top-6 md:right-6 z-[100]">
             <LanguageSwitcher />
           </div>
 
-          <div className="relative z-20 flex flex-col items-center gap-4 md:gap-6 text-center px-4 max-w-5xl">
+          <div className="relative z-20 flex flex-col items-center gap-2 md:gap-8 text-center px-6 max-w-5xl">
             <img 
               src="https://littletigersbooks.com/img/logo%20(1).png" 
               alt="Logo" 
-              className="h-40 md:h-[300px] lg:h-[400px] w-auto object-contain drop-shadow-2xl transition-all duration-700 hover:scale-105"
+              className="h-[120px] sm:h-52 md:h-[300px] lg:h-[400px] w-auto object-contain drop-shadow-2xl mb-2"
             />
-            <div className="transition-all duration-700">
-              <h1 className="text-4xl md:text-6xl font-black tracking-tighter uppercase drop-shadow-lg mb-2 text-white">
+            <div>
+              <h1 className="text-2xl md:text-6xl font-black tracking-tighter uppercase mb-1">
                 {t.welcome}
               </h1>
-              <p className="text-lg md:text-xl font-light tracking-widest opacity-80 uppercase text-white">
+              <p className="text-[10px] md:text-xl font-light tracking-[0.3em] opacity-80 uppercase">
                 {t.subtitle}
               </p>
             </div>
             <button 
               onClick={() => setCurrentSection(1)}
-              className="mt-6 px-12 py-5 bg-white text-black font-black uppercase tracking-[0.2em] rounded-full hover:scale-110 active:scale-95 transition-all shadow-2xl"
+              className="mt-6 md:mt-8 px-8 py-3 md:px-16 md:py-6 bg-white text-black font-black uppercase tracking-[0.2em] rounded-full hover:scale-110 active:scale-95 transition-all shadow-2xl text-[10px] md:text-base animate-pulse md:animate-none"
             >
               {t.explore}
             </button>
           </div>
 
-          <div className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 opacity-60 animate-bounce">
-            <div className="w-[1px] h-12 bg-gradient-to-b from-transparent via-white to-transparent"></div>
-            <span className="text-[10px] font-bold tracking-[0.3em] uppercase">{t.scroll}</span>
+          <div className="absolute bottom-8 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2 opacity-50 animate-bounce">
+            <div className="w-[1px] h-8 md:h-10 bg-white"></div>
+            <span className="text-[8px] font-bold tracking-[0.4em] uppercase">{t.scroll}</span>
           </div>
         </section>
 
-        <section className={`relative w-screen h-full flex flex-col bg-white transition-all duration-[1200ms] delay-100 ${currentSection === 0 ? 'translate-x-32 opacity-0' : 'translate-x-0 opacity-100'}`}>
+        <section className={`relative w-screen h-full flex flex-col bg-white transition-all duration-[1000ms] delay-100 ${currentSection === 0 ? 'translate-x-32 opacity-0' : 'translate-x-0 opacity-100'}`}>
           <div 
-            className="absolute inset-0 z-0 opacity-10 pointer-events-none bg-cover bg-center bg-no-repeat"
+            className="absolute inset-0 z-0 opacity-5 md:opacity-10 pointer-events-none bg-cover bg-center bg-no-repeat"
             style={{ backgroundImage: 'url("https://littletigersbooks.com/img/charactor.jpg")' }}
           ></div>
 
@@ -294,18 +296,18 @@ const App: React.FC = () => {
           
           <button 
             onClick={() => setCurrentSection(0)}
-            className="absolute top-8 left-8 z-50 p-2 hover:bg-gray-100 rounded-full transition-all group"
+            className="absolute top-3 left-3 md:top-8 md:left-8 z-50 p-2 md:p-3 bg-white/50 backdrop-blur-md rounded-full transition-all group border border-gray-200"
           >
-            <svg className="w-6 h-6 rotate-180 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="w-4 h-4 md:w-6 md:h-6 rotate-180 group-hover:-translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M14 5l7 7-7 7M3 12h18" />
             </svg>
           </button>
 
           <main 
-            className={`flex-1 w-full flex flex-col justify-center relative z-10 transition-all duration-700 pb-12 ${selectedCharacter ? 'opacity-0 scale-110 pointer-events-none' : 'opacity-100 scale-100'}`}
+            className={`flex-1 w-full flex flex-col justify-center relative z-10 transition-all duration-700 pb-16 md:pb-12 ${selectedCharacter ? 'opacity-0 scale-110 pointer-events-none' : 'opacity-100 scale-100'}`}
           >
             <div 
-              className="relative w-full overflow-visible touch-none select-none cursor-grab active:cursor-grabbing pb-12"
+              className="relative w-full overflow-visible touch-none select-none cursor-grab active:cursor-grabbing py-4 md:py-0"
               onMouseDown={onDragStart}
               onTouchStart={onDragStart}
             >
@@ -335,28 +337,29 @@ const App: React.FC = () => {
               </div>
             </div>
 
-            <div className="px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-6 mt-4">
-              <div className="flex gap-8 items-center text-gray-400">
-                <button onClick={toggleCameraGestures} className={`w-10 h-10 rounded-full flex items-center justify-center transition-all border ${isCameraActive ? 'bg-rose-500 text-white border-rose-600' : 'bg-white text-gray-600 border-gray-100 shadow-sm'}`}>
-                  <span className="text-xl">{isCameraActive ? '✨' : '👋'}</span>
+            <div className="absolute bottom-6 left-0 w-full px-6 md:px-12 flex flex-col md:flex-row justify-between items-center gap-4 mt-6 md:mt-10 pointer-events-none">
+              <div className="flex gap-4 md:gap-8 items-center text-gray-400 pointer-events-auto bg-white/80 backdrop-blur-lg md:bg-transparent px-4 py-2 rounded-full md:p-0 border md:border-none border-gray-100 shadow-lg md:shadow-none">
+                <button onClick={toggleCameraGestures} className={`w-8 h-8 md:w-12 md:h-12 rounded-full flex items-center justify-center transition-all border ${isCameraActive ? 'bg-rose-500 text-white border-rose-600 shadow-lg' : 'bg-white text-gray-600 border-gray-100 shadow-sm'}`}>
+                  <span className="text-sm md:text-xl">{isCameraActive ? '✨' : '👋'}</span>
                 </button>
-                <div className="flex gap-6 text-[10px] font-black uppercase tracking-[0.2em]">
+                <div className="flex gap-4 md:gap-6 text-[9px] md:text-[10px] font-black uppercase tracking-[0.2em]">
                   <button onClick={() => setShowSocial(true)} className="hover:text-black">Social</button>
                   <button onClick={() => setShowAbout(true)} className="hover:text-black">About</button>
+                  <button onClick={() => setShowMagic(true)} className="hover:text-black text-indigo-500">Magic</button>
                 </div>
               </div>
 
-              <div className="flex gap-8 items-center select-none">
+              <div className="flex gap-4 md:gap-8 items-center select-none w-auto justify-center pointer-events-auto">
                 <button 
                   onClick={prevCharacter}
-                  className="group flex items-center gap-3 hover:text-black transition-all font-black uppercase text-[12px] tracking-widest text-gray-900"
+                  className="group flex items-center gap-2 md:gap-3 hover:text-black transition-all font-black uppercase text-[10px] md:text-[12px] tracking-widest text-gray-900"
                 >
-                  <div className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center group-hover:bg-gray-50 transition-colors">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" /></svg>
+                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-gray-100 bg-white flex items-center justify-center group-hover:bg-gray-50 transition-colors shadow-sm">
+                    <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M15 19l-7-7 7-7" /></svg>
                   </div>
-                  {t.prev}
+                  <span className="hidden sm:inline">{t.prev}</span>
                 </button>
-                <div className="h-1 w-12 bg-gray-100 rounded-full overflow-hidden">
+                <div className="h-1 w-16 md:w-20 bg-gray-100 rounded-full overflow-hidden">
                     <div 
                       className="h-full bg-black transition-all duration-500" 
                       style={{ width: `${((activeIndex + 1) / CHARACTERS.length) * 100}%` }}
@@ -364,11 +367,11 @@ const App: React.FC = () => {
                 </div>
                 <button 
                   onClick={nextCharacter}
-                  className="group flex items-center gap-3 hover:text-black transition-all font-black uppercase text-[12px] tracking-widest text-gray-900"
+                  className="group flex items-center gap-2 md:gap-3 hover:text-black transition-all font-black uppercase text-[10px] md:text-[12px] tracking-widest text-gray-900"
                 >
-                  {t.next}
-                  <div className="w-10 h-10 rounded-full border border-gray-100 flex items-center justify-center group-hover:bg-gray-50 transition-colors">
-                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" /></svg>
+                  <span className="hidden sm:inline">{t.next}</span>
+                  <div className="w-8 h-8 md:w-10 md:h-10 rounded-full border border-gray-100 bg-white flex items-center justify-center group-hover:bg-gray-50 transition-colors shadow-sm">
+                    <svg className="w-3 h-3 md:w-4 md:h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M9 5l7 7-7 7" /></svg>
                   </div>
                 </button>
               </div>
@@ -391,6 +394,10 @@ const App: React.FC = () => {
 
       {showAbout && (
         <AboutOverlay language={language} onClose={() => setShowAbout(false)} />
+      )}
+
+      {showMagic && (
+        <MagicStudio language={language} onClose={() => setShowMagic(false)} />
       )}
     </div>
   );
